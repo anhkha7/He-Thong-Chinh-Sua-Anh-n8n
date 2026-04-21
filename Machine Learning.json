@@ -1,0 +1,184 @@
+{
+  "name": "Machine Learning",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true,
+          "imageSize": "large"
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "645bef15-683f-4db5-9fcf-83d2eaef3723",
+      "name": "Telegram Trigger",
+      "webhookId": "5470d3ad-a32e-4d6f-8235-7819e0e4dc97",
+      "credentials": {
+        "telegramApi": {
+          "id": "tbKdltbmPLzLEzeq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1f354aa-05b0-47e8-80f1-df722fb88a22",
+              "name": "fileName",
+              "value": "=edited_{{ $now.format(\"YYYYMMDD_HHmmss\") }}_{{ $json.message.caption ? $json.message.caption.substring(0,20).replace(/[^a-zA-Z0-9]/g, \"_\") : \"image\" }}.png",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6238ad91-c4f5-40be-9804-d1620beace68",
+      "name": "Prepare FileName"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.remove.bg/v1.0/removebg",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "nQgE4yi6FcBc2QZT7ExqXU15"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image_file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.message.caption || \"Cải thiện chất lượng ảnh\" }}"
+            },
+            {
+              "name": "size",
+              "value": "auto"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a271a095-2b9b-41d9-96b4-304ce950cfa0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "name": "={{ $node[\"Prepare FileName\"].json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1WiesHytytrE3z66YfxcjgeOeSrofs_mO",
+          "mode": "list",
+          "cachedResultName": "Hinh_Anh_Chinh_Sua_n8n_Telegram",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1WiesHytytrE3z66YfxcjgeOeSrofs_mO"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b0659589-0176-448a-9668-e37648788661",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "24hBkMRZFvd0b2t5",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare FileName",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare FileName": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ff5ef54f-c8c2-4788-b312-66775863deb1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "adb29a014349e6d457f7debfd8d8535c268e9e2204e23cf6693dcfee7c1aa16f"
+  },
+  "id": "VFQcy9D81xioXzwH",
+  "tags": []
+}
